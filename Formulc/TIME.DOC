@@ -1,0 +1,87 @@
+/* TIME.DOC */
+/* as of 5/17/95 */
+/* Copyright (c) 1995 by Harald Helfgott        */
+
+A COMPARISON OF THE VELOCITIES OF C AND FORMULC IN A VAX , VMS 5.5
+RUNNING GCC AND IN A 80386SX, 16 Mhz PC WITHOUT A MATH COPROCESSOR RUNNING
+GCC 1.11 (DJGPP, Free Software Foundation) 
+    
+-------------------------------------------------------------------------
+Note: These benchmarks were done by an earlier version of FORMULC, namely
+2.1. I do not know what kind of VAX machine I was using then. Don't
+pay much attention to this file.
+
+-------------------------------------------------------------------------
+
+     For this comparison, I used loops which repeated operations
+500,000 to 1,000,000 times.
+
+            double q,result;
+
+            for(q=0.0; q<=5.0; q += 1E-5)
+             result=result;         /* almost-empty loop */
+     
+            for(q=0.0; q<=5.0; q += 1E-5)
+             result=sin(q);               /* C */
+ 
+            for(q=0.0; q<=5.0; q += 1E-5)
+             result=f_val(my_function,"x",q);  /*FORMULA*/
+
+------------------------------------
+
+x*x - 2*x + 1      
+
+      VAX/VMS (when I am the only user)       80386SX, 16Mhz
+     (Of course, the speed of different
+	VAX machines varies. this shoul
+           empty loop: 0.00014 ms              1.165 ms
+           C (without counting the loop time):
+                       0.00014 ms              1.230 ms
+           f_val     : 0.018 ms                3.054 ms
+           f_x_val   : 0.016 ms
+
+                   FORMULA is weak at quadratics and other simple functions.
+
+------------------------------------
+
+x^7       VAX (1 user)                       80386SX, 16 Mhz     
+
+           C         : 0.024 ms               3.835 ms
+           f_val     : 0.036 ms               4.67  ms
+           f_x_val   : 0.036 ms
+
+           This times are not too bad for an interpreter like FORMULA.
+
+------------------------------------
+
+cos(x)    VAX (1 user)                       80386SX, 16Mhz
+
+         C        : 0.019 ms                1.63 ms
+         f_val or                            
+         f_x_val  : 0.029 ms                2.47 ms
+
+------------------------------------
+exp(-x*x/2)/sqrt(2*3.14159265358979323)    (C)
+exp(-x*x/2)/sqrt(2*pi())         (FORMULA)
+                
+               VAX (1 user)                  80386SX, 16 Mhz
+
+            C      : 0.017 ms             4.85 ms    
+            f_val  : 0.029 ms             5.95 ms
+            f_x_val: 0.027 ms           
+
+     Like most C compilers, FORMULA optimizes code by calculating
+constant expressions like sqrt(2*pi()) once only. 
+
+--------------------------------------
+
+exp(sin(x)) 
+               VAX (1 user)                  80386SX, 16 Mhz
+
+            C      :0.024 ms                 4.50 ms
+            f_val  :0.024 ms                 5.37 ms             
+            f_x_val:0.024 ms
+
+       FORMULA is extremely efficient when evaluating library and user-defined
+C functions.
+

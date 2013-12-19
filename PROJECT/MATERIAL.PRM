@@ -1,0 +1,179 @@
+# There are four important items to consider when editing this file or
+# any of the device files:
+#              1. Any line that begins with the ‘#’ character is not translated.
+#              2. Everything is case insensitive.
+#	3. Do not use spaces before or after an '=' or a ','.
+#	4. EVERY statement must begin in the first column.
+
+# This file is the general material parameters file. This lets you define
+# arbitrary materials with arbitrary names. This file must be contained in
+# the same directory as the simwin.exe file. It is loaded as soon as the
+# program starts.
+
+# This file uses a combination of different general functions as well as
+# built-in models. See sections 3.1 and 3.2 in the User's Manual for
+# more information.
+
+# If you make a mistake, in most cases the computer will tell you what line
+# the error appears.
+
+# Here is how the file works.
+# First start of by defining a material name.
+
+Material=Si
+
+# Then define an alloy name for the material that is currently defined.
+# A special alloy name called "default" is used when you just want to define
+# a pure semiconductor.
+
+Alloy=Default
+
+# Now you have to put in the Values. Each of these Values must be
+# defined. The order in which they appear doesn't matter, but you have to
+# use the parameter name like it is typed here (rule 2 above applies).
+
+BAND_GAP Model=Band_gap terms=1.124,0,0,-4.73e-4,636
+ELECTRON_AFFINITY Model=Band_gap terms=4.05,0,0,2.365e-4,636
+STATIC_PERMITIVITY Value=11.7
+
+REFRACTIVE_INDEX Value=3.44
+
+ABSORPTION Segments=4
+start_e=0.0 end_e=1.1 value=0.0
+start_e=1.1 end_e=2.5 model=power_absorption terms=6e3,0,0,1.1,2
+start_e=2.5 end_e=3.2 value=6e3*(E-1.1)^2+8e4*(E-2.5)^2
+start_e=3.2 end_e=100 value=6e3*(E-1.1)^2+8e4*(E-2.5)^2+1.26e6*(E-3.2)^0.5
+
+THERMAL_CONDUCTIVITY Value=1.412
+DERIV_THERMAL_CONDUCT Value=0
+
+ELECTRON_MOBILITY model=mobility terms=88,0,0,300,-0.57,7.4e8,0,0,-2.33,1.432e17,-2.546
+HOLE_MOBILITY model=mobility terms=54.3,0,0,300,-0.57,1.36e8,0,0,-2.23,2.671e17,-2.546
+
+ELECTRON_DOS_MASS Value=1.08
+HOLE_DOS_MASS Value=0.81
+ELECTRON_COND_MASS Value=0.26
+HOLE_COND_MASS Value=.386
+ELECTRON_SHR_LIFETIME Value=1.e-7
+HOLE_SHR_LIFETIME Value=1.e-7
+ELECTRON_AUGER_COEFFICIENT Value=1.5e-31
+QW_ELECTRON_AUGER_COEFFICIENT Value=0.0
+HOLE_AUGER_COEFFICIENT Value=1.5e-31
+QW_HOLE_AUGER_COEFFICIENT Value=0.0
+RAD_RECOMB_CONST Value=1.5e-10
+ELECTRON_ENERGY_LIFETIME Value=1.e-8
+HOLE_ENERGY_LIFETIME Value=1.e-8
+QW_RAD_RECOMB_CONST Value=0.0
+ELECTRON_COLLISION_FACTOR Value=-0.5
+HOLE_COLLISION_FACTOR Value=-0.5
+
+# Ok, so much for Silicon, now let's do GaAs.
+
+Material=GaAs
+
+# Let's first define the default parameters for GaAs. Note that defining
+# a default alloy is not required, but if you don't you will be required
+# to specify the alloy each time you use the material in your device file.
+
+Alloy=Default
+
+BAND_GAP Model=Band_gap terms=1.424,0,0,-5.405e-4,204
+ELECTRON_AFFINITY Model=Band_gap terms=4.07,0,0,2.702e-4,204
+STATIC_PERMITIVITY Value=13.18
+
+REFRACTIVE_INDEX Model=oscillator_refractive_index
+
+ABSORPTION Segments=6
+start_e=0 end_e=g value=0
+start_e=g end_e=g+1 value=2.698e3+8.047e4*(e-g)-6.241e4*(e-g)^2+7.326e4*(e-g)^3
+start_e=g+1 end_e=g+1.4 value=-3.218e6+9.060e6*(e-g)-8.428e6*(e-g)^2+2.681e6*(e-g)^3
+start_e=g+1.4 end_e=g+1.9 value=-1.615e7+2.600e7*(e-g)-1.338e7*(e-g)^2+2.303e6*(e-g)^3
+start_e=g+1.9 end_e=g+2.6 value=8.383e5+2.442e5*(e-g)-3.226e5*(e-g)^2+8.482e4*(e-g)^3
+start_e=g+2.6 end_e=g+4.0 value=7.83e5
+
+THERMAL_CONDUCTIVITY Model=Thermal_Conduct terms=549.356,1,0,0,-1.25
+DERIV_THERMAL_CONDUCT Model=Thermal_Conduct terms=-686.695,1,0,0,-2.25
+ELECTRON_MOBILITY Value=8000
+HOLE_MOBILITY Value=370
+ELECTRON_DOS_MASS Value=0.067
+HOLE_DOS_MASS Value=0.62
+ELECTRON_COND_MASS Value=0.067
+HOLE_COND_MASS Value=.62
+ELECTRON_SHR_LIFETIME Value=1e-8
+HOLE_SHR_LIFETIME Value=1e-8
+ELECTRON_AUGER_COEFFICIENT Value=1.5e-31
+QW_ELECTRON_AUGER_COEFFICIENT Value=1.5e-19
+HOLE_AUGER_COEFFICIENT Value=1.5e-31
+QW_HOLE_AUGER_COEFFICIENT Value=1.5e-19
+RAD_RECOMB_CONST Value=1.5e-10
+ELECTRON_ENERGY_LIFETIME Value=1.e-12
+HOLE_ENERGY_LIFETIME Value=1.e-12
+QW_RAD_RECOMB_CONST Value=1.54e-4
+ELECTRON_COLLISION_FACTOR Value=0.5
+HOLE_COLLISION_FACTOR Value=0.5
+
+# Now we want to define the Al alloy. Since GaAs was the last material you
+# specified, you don't need to specify it again.
+
+Alloy=Al
+
+BAND_GAP Segments=2
+Start_x=0.00 end_x=0.45 Model=Band_gap terms=1.424,1.247,0,-5.405e-4,204
+Start_x=0.45 end_x=1.00 Model=Band_gap terms=1.9,0.125,0.143,-5.405e-4,204
+
+ELECTRON_AFFINITY Segments=2
+Start_x=0.0 end_x=0.45 Model=Band_gap terms=4.07,-0.7482,0,2.702e-4,204
+Start_x=0.45 end_x=1.0 Model=Band_gap terms=3.594,0.3738,-0.143,2.702e-4,204
+
+STATIC_PERMITIVITY Value=13.18,-3.12
+
+REFRACTIVE_INDEX Model=oscillator_refractive_index
+
+ABSORPTION Segments=6
+start_e=0 end_e=g value=0
+start_e=g end_e=g+1 value=2.698e3+8.047e4*(e-g)-6.241e4*(e-g)^2+7.326e4*(e-g)^3
+start_e=g+1 end_e=g+1.4 value=-3.218e6+9.060e6*(e-g)-8.428e6*(e-g)^2+2.681e6*(e-g)^3
+start_e=g+1.4 end_e=g+1.9 value=-1.615e7+2.600e7*(e-g)-1.338e7*(e-g)^2+2.303e6*(e-g)^3
+start_e=g+1.9 end_e=g+2.6 value=8.383e5+2.442e5*(e-g)-3.226e5*(e-g)^2+8.482e4*(e-g)^3
+start_e=g+2.6 end_e=g+4.0 value=7.83e5
+
+THERMAL_CONDUCTIVITY Model=Thermal_Conduct terms=549.356,1,12.7,-13.22,-1.25
+DERIV_THERMAL_CONDUCT Model=Thermal_Conduct terms=-686.695,1,12.7,-13.22,-2.25
+
+ELECTRON_MOBILITY Segments=2
+Start_x=0.0 end_x=0.45 Value=8000,-22000,10000
+Start_x=0.45 end_x=1.0 Value=-255,1160,-720
+
+HOLE_MOBILITY Value=370,-970,740
+
+ELECTRON_DOS_MASS Segments=2
+Start_x=0.0 end_x=0.45 Value=0.067,0.083
+Start_x=0.45 end_x=1.0 Value=0.85,-0.14
+
+HOLE_DOS_MASS Value=0.62,0.14
+
+ELECTRON_COND_MASS Segments=2
+Start_x=0.0 end_x=0.45 Value=0.067,0.083
+Start_x=0.45 end_x=1.0 Value=0.32,-0.06
+
+HOLE_COND_MASS Value=0.62,0.14
+
+ELECTRON_SHR_LIFETIME Value=1e-8
+
+HOLE_SHR_LIFETIME Value=1e-8
+
+ELECTRON_AUGER_COEFFICIENT Value=1.5e-31
+QW_ELECTRON_AUGER_COEFFICIENT Value=1.5e-19
+
+HOLE_AUGER_COEFFICIENT Value=1.5e-31
+QW_HOLE_AUGER_COEFFICIENT Value=1.5e-19
+
+RAD_RECOMB_CONST Value=1.5e-10
+
+ELECTRON_ENERGY_LIFETIME Value=1.e-12
+HOLE_ENERGY_LIFETIME Value=1.e-12
+
+QW_RAD_RECOMB_CONST Value=1.54e-4
+
+ELECTRON_COLLISION_FACTOR Value=0.5
+HOLE_COLLISION_FACTOR Value=0.5

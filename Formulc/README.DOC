@@ -1,0 +1,89 @@
+/* README.DOC    for the FORMULC v2.2 (definitive version) package */
+/* Copyright (c) 1995 by Harald Helfgott        */
+
+COPYRIGHT NOTICE
+
+In this notice, "the program" and "FORMULC" mean the following files:
+
+	README.DOC
+	FORMULC.C
+	FORMULC.H
+	FORMULC.DOC
+	TEST.C
+	TIME.DOC
+	CHANGES.DOC
+
+   They are a unit and must not be distributed individually.
+
+	FORMULC is provided "AS IS", without any implicit or explicit
+   warranty. Moreover, I don't assure you that it is useful for any
+   specific purpose.
+
+	You can use FORMULC in any of your programs, provided that you 
+acknowledge in the documentation of your program that you have used it.
+You must mention my name and my E-MAIL address and make clear that
+anybody can obtain FORMULC by sending me an E-MAIL. If you modify FORMULC, 
+you must state that you have done so before giving your version to any 
+other person. I would like to receive the source code of improved versions 
+as well as bug reports and suggestions. Questions about the program are 
+also welcome, but don't expect to always receive a prompt answer. 
+	You can give out as many copies of FORMULC as you want. You cannot
+charge a copying fee to anybody without mentioning first that I charge no 
+such fee. Moreover, you must ask me for permission to use FORMULC, parts of 
+it or a modified version of it in any program you sell or distribute as
+ShareWare. 
+	I don't want to limit the usage of this program by charging
+a compulsory fee. Writing a program takes much time and hard work, but
+creating new copies of a program benefits new users without wasting
+any scarce resources. If paying a fee would make you decide not to
+use FORMULC, then you should rather use FORMULC without paying
+than refrain from using FORMULC.
+	However, you should see this manner of distribution as an
+experiment in honesty. If you want me to be able to continue working on 
+and  distributing the program, you should send me a registration fee. If 
+you use FORMULC for academic purposes, ca. $10 should be appropriate. If 
+you want to sell a program containing parts of FORMULC, you have the legal
+obligation to ask me for authorization. I will probably let you use it, 
+but the registration fee will be compulsory. The categories for it are as 
+follows:
+
+If your program...                        you will have to pay...
+
+  is a project intended for a single        $29
+  user or company 
+
+  is a program distributed as ShareWare     $29
+
+  is distributed commercially               $59  
+
+	In any of these cases, the registration fee will enable you
+to use any version of FORMULC in all versions of a particular program
+of yours. To use FORMULC in two programs you sell, you must pay two
+registration fees. When it is not clear what constitutes two different
+programs, you should ask the author of FORMULC.
+	Paying a registration fee, be it $10, $29 or $59, entitles you
+to receive all the new versions of FORMULC in the future, both preliminary 
+and definitive. I will send FORMULC to you by E-MAIL or inform you about
+the ftp sites where the latest versions of FORMULC are. (This service was
+available to all users until the launching of v2.2 (definitive)) In 
+answering  questions and suggestions, I will give preferential treatment 
+to registered users. 
+	Please send suggestions, modified versions, questions, money 
+orders or checks to:
+
+	    Harald Helfgott
+	    MB 1807, Brandeis University
+	    P.O. Box 9110
+	    Waltham, MA 02254-9110
+	    U.S.A.
+	    hhelf@cs.brandeis.edu	
+		   OR
+	     (during the summer)
+	    2606 Willett Apt. 427
+	    Laramie, Wyoming 82070
+	    seiere@uwyo.edu
+
+     FORMULC's documentation is in FORMULC.DOC .
+
+
+

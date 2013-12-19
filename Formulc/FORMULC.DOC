@@ -1,0 +1,410 @@
+/*  FORMULC.DOC as of 5/17/95 (v2.2 definitive) */
+/*  Copyright (c) 1995 Harald Helfgott (E-MAIL: hhelf@cs.brandeis.edu) */
+/*  This file must be distributed with its corresponding
+    README.DOC. You should read it, for you will find my regular
+    address and the copyright and availability information there.   */
+
+          Overview of the FORMULC 2.2 functions
+          -------- -- --- ------- --- ---------
+
+
+     The FORMULC set of functions is written in ANSI C. It has
+been tested in a 386SX running GNU CC (DJGPP 1.11), in another
+386SX running Turbo C++ v3.0 and in a VAX/VMS, but it will probably
+run in any machine with an ANSI C compiler. The functions enable
+the user of a C program to enter mathematical functions and to 
+evaluate them very rapidly. This project was undertaken for the
+Finite Elements Laboratory of the School of Mathematics in the
+Universidad Mayor de San Marcos, Lima, Peru.
+
+     Any programmer who handles mathematical problems must
+sometimes require the users of his or her programs to enter a
+mathematical function by the keyboard. Embedding the function in
+the program is time-consuming and not user friendly. Consequently,
+there is a large number of programs in C and Pascal that parse
+strings representing mathematical formulas. In fact, most good
+Pascal and C books have a more or less inchoate parser. However,
+all the formula interpreters I have seen are extremely slow.
+
+     On May 1993, a mathematics professor in Lima, Peru asked me
+whether I could write a quick formula interpreter. His program
+needed to compute a formula entered by the user hundreds of
+thousands of times. I decided, therefore, to write a two-stage
+interpreter. First, a string containing a mathematical function is
+translated into another string in a postfix format. Every formula
+goes through this stage once. Then, the string in postfix format is
+interpreted whenever one wants to evaluate the mathematical
+function. Since this string's structure makes the use of a stack
+rapid, lacks white space and has additional characters to ensure
+that the computer understands the formula swiftly, interpretation
+is little time consuming. Although extra space is needed for the
+intermediate string, the velocity of the two-stage method
+compensates the space overhead.
+
+     The FORMULC routines are easy to use. They are all in one
+file, FORMULC.C; one only needs to type
+         #include "formula.h"
+     and to link FORMULC with one's program to use the functions.
+There are no initialization routines. There are utilities that
+describe and extend the types of expressions that the formula
+interpreter can understand. Moreover, I expect the program to be
+error free and resistant to the human fallibility of the users.
+
+
+     Please read TIME.DOC to know about the velocity of my formula
+interpreter (*). My address, the instructions for reporting bugs, the
+statement of what you are allowed to do with the program and the
+registration information are in README.DOC.
+
+(*) The benchmarks for version 2.2 have not been done yet.
+
+     Description of the functions
+     ----------- -- --- ---------
+
+1. Evaluation
+
+formu translate(char *source, char *args, int *length,
+						   int *error);
+
+ Examples:
+
+     formu f,g;
+     int leng;
+     int error;
+
+     f = translate("x^2 + sin(3*x) + 0.1", "x", &leng, &error);
+
+     f = translate("1E+5 * x/x \n", "x", &leng, &error);
+
+     gets(gsource);
+     g=translate(gsource, "xyz", &length, &error);
+         /* g is a function of x, y and z */
+
+     This function transforms a legible mathematical function in
+string source[] into a coded function which is returned. The
+arguments of source are in string arg[]; they must be lower-case
+letters. If source uses an  undeclared argument, translate stops
+coding and returns the index of the  argument in *error. In fact,
+if any error occurs, *error contains an approximation of the index
+of the character in source[] that causes the error, *length acquires
+the value 0 and translate returns empty code (see fnot_empty() ). 
+However, if source[] contains a valid mathematical function, the 
+transformation occurs, *length contains the length of function[] (not 
+including the final \0) and *error contains -1.
+
+     The result string is dynamically allocated. It is likely to be
+far larger than source[]. If it does not fit in memory, or if any other
+out-of-memory or internal error occurs, translate returns NULL, but *error 
+contains -1. The result string can always be destroyed using destrf().
+
+		  source[]                |   Length of function[]
+					  |   (VMS 5.5 CC)
+					  |
+                  "4", "4.0" or "4.0E-3"  |     9 chars
+                  "x"                     |     2 chars
+            "(x+3)^2"                     |     22 chars
+            "(x+3)*(x+3)"                 |     25 chars
+            "atan2(x^2,sqrt(x)-x))"       |     21 chars
+            "acos(cos(x)-x)"              |     9 chars
+
+
+       The syntax of source is the following one (in Extended
+Backus-Naur Form):
+
+     source = expression "\0"
+     expression = [-] summand {("+" | "-") summand}
+     summand = factor {("*" | "/") factor}
+        /*Please, don't forget "*" ! */
+     factor = base {"^" base}
+     base = "(" expression ")" | function "(" expression ")" |
+	     function "(" expression "," expression ")" |
+   function "(" expression "," expression "," expression ")" |
+                      number | parameter
+     function = a string in the function table
+     parameter = a lower-case letter mentioned by arg[]
+     number = any nonnegative number  /* the sign is considered in
+                                    the definition of expression */
+                             /* please write 3.5E-3, not 3.5e-3 */
+
+     This description of the syntax mimics the algorithm in
+translate(...). It must be noticed that -3+5*6 and 3+5*(-6) are
+allowed, but 3+5*-6 and 3+-5*6  are not.  White space is ignored. 
+Moreover, translate(...) is not case-sensitive.
+
+
+Precedence:
+
+	parentheses, function
+	power
+	unary minus
+	* /
+	+ -
+
+    
+     translate(...) works recursively. First, it locates the
+operator with  the lowest order of precedence. Then, it calls
+itself to translate each operand. Thereafter, it adds the operator
+at the end and stops. If both operands are constants, translate
+executes fval to evaluate the expression at "compile time". (Beware
+of overflows! They can be perceived by the standard methods.) If
+there is no operator, translate(...) checks whether its input is
+a variable or a constant. If the input is invalid, translate(...)
+points out the error. Otherwise, *error contains -1.
+
+     The coded function in string function uses postfix notation.
+The syntax is the following one:
+
+coded function = ce "\0"
+ce = ("" | ce | (ce ce) | (ce ce ce) ) operator |
+                                      parameter | number
+parameter = "V" lower-case letter
+number = "D" index of a real number
+	     in a table of constants 
+	(there is one table for each function; it can contain up to
+         256 doubles)
+operator = "^" | "+" | "*" | "-" | "/" | "M"  /*i.e. unary minus */
+                                       | function
+/*each operand has a characteristic number of operands
+					(i.e. ce's) */
+
+function = "F" index of a function in the table (one char)
+      /* Be careful! The index may be represented as \0 */
+      /* Trust only the result of translate when finding */
+      /*  out the length of the coded function.         */
+      /* Since there can be more than 128 functions, */
+      /* please declare function[] as an array of unsigned */
+      /* char                                              */
+   No blanks exist.
+     The standard functions are exp(), ln(x), sin(), cos(), tan(),
+asin(), acos(), atan(), abs(), pi() (without parameters inside the
+brackets), sqrt() and rnd(). One can add new functions by using fnew(..);
+the name of each function obeys C regulations but can be as long as
+needed. If a new function  is used, fnew(..) must be called in the
+same run as translate(..); one must  not call fnew, translate a
+function, store the coded function and call a  program that uses
+fnew(..) and loads the coded function.
+
+double fval(formu function, char *args, ...);
+ Examples:
+
+     function=translate("x^2+sin(cos(x))","x", &leng, &error);
+     result=fval(f,"x",3.0);  /* 3.0, not 3 */
+     /* returns 3^2+sin(cos(3)) */
+
+
+     g=translate("n*m","nm", &leng, &error);
+     for(p=0; p<100; p++)
+      for(q=0; q<1000; q++)
+       a[p][q]=fval(g,"nm",(double) p,(double) q);
+                         /* the arguments must always be double */
+
+  fval(...) calculates the value of a coded mathematical function
+in string function[] when the arguments, whose names are in string
+args[], are given. If there are not enough parameters or if the
+parameters don't belong to the function, the result is undefined.
+If there are any mathematical errors such as trying to obtain the
+square root of -5, errno is EDOM (domain error) or ERANGE (range
+error), the results are Infinity and Not-A-Number, or the program
+stops, depending on the compiler and how you use it.
+
+double f_x_val(formu function, double x);    
+
+ Examples:
+      result=f_x_val(f,3);   /* calculates f(3) if f is a function
+                                                            of x */
+
+     A shorthand version of fval(..) for functions of x. It is
+about as rapid as fval(..) .
+
+double fval_at(formu function);
+void make_var(char var, double value);
+
+	This is the interface for the evaluation of functions whose
+number of parameters is determined at run-time.
+Example:
+
+make_var('x',2);
+make_var('y',0.2);
+make_var('z',-2);
+result=fval_at(f);
+/* evaluates f(x,y,z) at point x=2, y=0.2, z=-2 */
+
+2. Management of the Function Library
+
+int fnew(char *name, Func f, int n_pars, int varying);
+
+  Examples:
+
+     fnew("sinh",(Func) sinh,1,0);   /* sinh has been declared as
+                                            double sinh(double); */
+     fnew("logb",(Func) logb,2,0);   /* logb has been declared as
+                                   	double logb(double, double); */
+     fnew("rnd", (Func) rnd, 0,1);  /* varying = 1 because the result
+					of rnd is not determined
+					by its parameters.         */	
+ 
+   fnew(...) adds a user-defined C function with double parameters
+to the  library of FORMULA. The C function can have from 0 to 3
+parameters. fnew(...)  returns 0 if the library is full (255
+functions) or if other error occurs.  Otherwise, it returns 1.
+
+	Please, do not call any function 'E' ! It would be similar
+to exponential notation (e.g. 3.5E+3) .
+
+int read_table(int i, char *name, int *n_of_pars, int *varying);
+
+  Example:
+     i=0;
+     while(read_table(i++, name, &n_pars, &varying)
+         printf("%s %d",name,n_pars);
+
+    read_table copies the name, the number of parameters and the
+non-determinism bit of function #i onto name[], *n_of_pars and *varying. 
+If function #i does not exist, read_table returns 0. Otherwise, it
+returns a positive number.
+
+int where_table(char *name);
+
+ Example:
+     if(where_table("sinh") == -1)
+      printf("Hyperbolic sine not defined.");
+
+   If there is a mathematical function called name[],
+where_table(..) returns  its index in the table of functions.
+Otherwise, where_table(..) returns -1.  Use fnew(..) to define
+mathematical functions which are not in FORMULA's  standard
+library.
+
+int fdel(char *name);
+
+ Example:
+    if(where_table("sinh" != -1)
+     fdel("sinh");
+
+   If there is a mathematical function called name[], fdel deletes
+it. If fdel is succesful, it returns a non-negative number;
+otherwise, it returns -1.
+
+3. Random-Number Generation
+	
+	The standard library of FORMULC includes double rnd(void).
+Any program that generates random numbers through FORMULC must call
+
+	void rnd_init(void);
+
+first.
+
+	By default, FORMULC uses the random-number generator r250 (written 
+by W. L. Maier, S. Kirkpatrick and E. Stoll). If you want to use another
+RNG, you must define functions according to the declarations
+
+	double rnd(void);
+	void rnd_init(void);
+
+ Furthermore, you must compile formulc.c with -DMY_RND (i.e., defining
+MY_RND).
+
+	 
+4. Miscellaneous
+
+void destrf(formu f);
+
+ frees memory occupied by f
+
+void make_empty(formu f);
+
+ makes f an empty function
+ Note: This function should NOT be used to dispose functions but to
+initialize them. It does not deallocate any memory. Use destrf(f) to 
+destroy a function.
+
+
+int fnot_empty(formu f);
+
+ returns 1 if f is not an empty function
+ returns 0 otherwise
+
+const char *fget_error(void);
+
+ Every routine in FORMULC gives an error message if it fails and erases
+the previous error message from memory if it succeeds. fget_error()
+renders an error string if the last routine failed; otherwise, it
+returns NULL.
+	
+	The only routines that does not alter the error message is
+fget_error() itself.
+
+Normal error messages:
+ they are self explanatory.
+Internal error messages:
+ These errors should never happen. If they do occur, please, send
+me E-MAIL (my address is at the beginning of this file) describing
+under what circumstances the program failed. Be as precise as possible.
+
+value:
+ I1: unrecognizable operator
+ I2: too many parameters
+ I3: corrupted buffer
+   I1, I2 and I3 can occur if you change the contents of a coded
+function directly. You should never do that.
+
+translate:
+ I4: size estimate too small
+	This is a serious error, for it happens when a function
+occupies more space than it should and overwrites some variables.
+
+
+UNIX-filter version of FORMULC:
+
+	If you compile formulc.c with -dSTAND_ALONE, you will obtain
+an executable file. This program will act as a UNIX filter. Given a
+function and the values of the variables, it will return the value of the
+function. This process is repeated several times; an input file
+with several columns produces an output file with a single column containg
+the results of the function.
+	
+	Example:
+
+	formulc "a*b+c"      "acb"          <data      >results
+		(function)  (variables corresponding
+			     to the columns)	
+
+	uses file "data":
+
+	    1 3 2
+	    2 0 9
+	    4 1 3 
+	    1 0 2
+	    -2.4 2 3
+
+           (the first column corresponds to a,
+	    the second one to c, and the third one to b)	
+
+	 and outputs file "results":
+
+	   5
+	   18
+	   13
+	   2
+  	   -5.2
+
+	The user can determine the format of the output by typing a
+third parameter:
+
+	formulc "a*b+c" "acb" "%f" <data >results
+
+	outputs
+	
+	5.000000
+	18.000000
+	13.000000
+	2.000000
+	-5.200000
+
+	The UNIX filter was done by Ralf Grosse Kunstleve
+					<ralf@kristall.erdw.ethz.ch>
+
+
+
+
+
